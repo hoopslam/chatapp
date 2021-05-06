@@ -4,24 +4,48 @@ import ChatIcon from "@material-ui/icons/Chat";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import SearchIcon from "@material-ui/icons/Search";
 import * as EmailValidator from "email-validator";
-
-const createChat = () => {
-    const input = pront('Please enter the email address of the user you wish to chat with');
-    
-    //Checks to see if user inputed something
-    if (!input) return null;
-    
-    //Checks to see if user entered valid email format
-    if (EmailValidator.validate(input)) {
-        //Once validated, post the new chat into the DB "chats" collection
-    }
-}
+import { useAuthState } from "react-firebase-hooks/auth";
+import { useCollection } from "react-firebase-hooks/firestore";
+import { auth, db } from "../firebase";
 
 const Sidebar = () => {
+	const [user] = useAuthState(auth);
+
+	//reference to the chats that contain the user's email
+	const userChatRef = db.collection("chats").where("users", "array-contains", user.email);
+	const [chatsSnapshot] = useCollection(userChatRef);
+
+	const createChat = () => {
+		const input = prompt("Please enter the email address of the user you wish to chat with");
+
+		//Checks to see if user inputed a valid email
+		if (!input || !EmailValidator.validate(input)) return alert("Please enter a valid email address");
+
+		//Checks to see if user entered valid email format and if the chat doesn't already exists, create a new one
+		if (EmailValidator.validate(input) && !chatAlreadyExists(input)) {
+			//Once validated, post the new chat into the DB "chats" collection
+			db.collection("chats").add({
+				users: [user.email, input],
+			});
+		}
+	};
+
+	//check in real time to see if that chat already exists on database
+	const chatAlreadyExists = (recipientEmail) =>
+		{
+			if (
+				chatsSnapshot?.docs.find(
+					(chat) => chat.data().users.find((user) => user === recipientEmail)?.length > 0
+				)
+			) {
+				return true;
+			} else return false;
+		};
+
 	return (
 		<Container>
 			<Header>
-				<UserAvatar />
+				<UserAvatar onClick={() => auth.signOut()} />
 				<IconsContainer>
 					<IconButton>
 						<ChatIcon />
@@ -37,7 +61,7 @@ const Sidebar = () => {
 				<SearchInput placeholder='Search chats' />
 			</Search>
 
-			<SidebarButton onClick={()=> createChat}>Start a new chat</SidebarButton>
+			<SidebarButton onClick={createChat}>Start a new chat</SidebarButton>
 		</Container>
 	);
 };
@@ -85,7 +109,8 @@ const SearchInput = styled.input`
 const SidebarButton = styled(Button)`
 	width: 100%;
 
-	&&& { //increases specificity to override material-ui's
+	&&& {
+		//increases specificity to override material-ui's
 		border: 1px solid whitesmoke;
 	}
 `;
