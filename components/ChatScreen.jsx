@@ -11,8 +11,10 @@ import MicIcon from "@material-ui/icons/Mic";
 import { useState } from "react";
 import Message from "./Message";
 import firebase from "firebase";
+import TimeAgo from "timeago-react";
+import getRecipientEmail from "../lib/getRecipientEmail";
 
-const ChatScreen = ({chat, messages}) => {
+const ChatScreen = ({ chat, messages }) => {
 	const [user] = useAuthState(auth);
 	const [input, setInput] = useState("");
 	const router = useRouter();
@@ -22,6 +24,10 @@ const ChatScreen = ({chat, messages}) => {
 			.doc(router.query.id)
 			.collection("messages")
 			.orderBy("timestamp", "asc")
+	);
+
+	const [recipientSnapshot] = useCollection(
+		db.collection("users").where("email", "==", getRecipientEmail(chat.users, user))
 	);
 
 	const showMessages = () => {
@@ -37,10 +43,10 @@ const ChatScreen = ({chat, messages}) => {
 				/>
 			));
 		} else {
-            return JSON.parse(messages).map(message => (
-                <Message key={message.id} user={message.user} message={message} />
-            ))
-        }
+			return JSON.parse(messages).map((message) => (
+				<Message key={message.id} user={message.user} message={message} />
+			));
+		}
 	};
 
 	const sendMessage = (e) => {
@@ -64,13 +70,30 @@ const ChatScreen = ({chat, messages}) => {
 		setInput("");
 	};
 
+	const recipientEmail = getRecipientEmail(chat.users, user);
+    const recipient = recipientSnapshot?.docs?.[0]?.data();
+
 	return (
 		<Container>
 			<Header>
+                {recipient ? (
+                    <Avatar src={recipient?.photoURL} />
+                ) : (
+                    <Avatar>{recipientEmail[0]}</Avatar>
+                )}
+
 				<Avatar />
 				<HeaderInformation>
-					<h3>Rec Email</h3>
-					<p>Last online ...</p>
+					<h3>{recipientEmail}</h3>
+                    {recipientSnapshot ? (
+                        <p>Last active: {" "}
+                        {recipient?.lastSeen?.toDate() ? (
+                            <TimeAgo datetime={recipient?.lastSeen?.toDate()} />
+                        ) : "Unavailable"}
+                        </p>
+                    ): (
+                        <p>Loading Last Active...</p>
+                    )}
 				</HeaderInformation>
 				<HeaderIcons>
 					<IconButton>
