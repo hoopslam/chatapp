@@ -8,7 +8,7 @@ import AttachFileIcon from "@material-ui/icons/AttachFile";
 import InsertEmoticonIcon from "@material-ui/icons/InsertEmoticon";
 import { useCollection } from "react-firebase-hooks/firestore";
 import MicIcon from "@material-ui/icons/Mic";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Message from "./Message";
 import firebase from "firebase";
 import TimeAgo from "timeago-react";
@@ -18,6 +18,7 @@ const ChatScreen = ({ chat, messages }) => {
 	const [user] = useAuthState(auth);
 	const [input, setInput] = useState("");
 	const router = useRouter();
+    const endOfMessagesRef = useRef(null);
 	const [messagesSnapshot] = useCollection(
 		db
 			.collection("chats")
@@ -49,6 +50,13 @@ const ChatScreen = ({ chat, messages }) => {
 		}
 	};
 
+    const scrollToBottom = () => {
+        endOfMessagesRef.current.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+        })
+    }
+
 	const sendMessage = (e) => {
 		e.preventDefault();
 
@@ -68,6 +76,7 @@ const ChatScreen = ({ chat, messages }) => {
 		});
 
 		setInput("");
+        scrollToBottom();
 	};
 
 	const recipientEmail = getRecipientEmail(chat.users, user);
@@ -95,18 +104,18 @@ const ChatScreen = ({ chat, messages }) => {
                         <p>Loading Last Active...</p>
                     )}
 				</HeaderInformation>
-				<HeaderIcons>
+				<div>
 					<IconButton>
 						<AttachFileIcon />
 					</IconButton>
 					<IconButton>
 						<MoreVertIcon />
 					</IconButton>
-				</HeaderIcons>
+				</div>
 			</Header>
 			<MessageContainer>
 				{showMessages()}
-				<EndOfMessage />
+				<EndOfMessage ref={endOfMessagesRef}/>
 			</MessageContainer>
 			<InputContainer>
 				<InsertEmoticonIcon />
@@ -169,12 +178,13 @@ const HeaderInformation = styled.div`
 	> p {
 		font-size: 14px;
 		color: gray;
+        margin-top: 0;
 	}
 `;
 
-const EndOfMessage = styled.div``;
-
-const HeaderIcons = styled.div``;
+const EndOfMessage = styled.div`
+    margin-bottom: 50px;
+`;
 
 const MessageContainer = styled.div`
 	padding: 30px;
