@@ -7,6 +7,7 @@ import * as EmailValidator from "email-validator";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useCollection } from "react-firebase-hooks/firestore";
 import { auth, db } from "../firebase";
+import Chat from "../components/Chat"
 
 const Sidebar = () => {
 	const [user] = useAuthState(auth);
@@ -21,8 +22,11 @@ const Sidebar = () => {
 		//Checks to see if user inputed a valid email
 		if (!input || !EmailValidator.validate(input)) return alert("Please enter a valid email address");
 
+		//Checks to see if user didn't write own email
+		if(input === user.email) return alert("Please enter someone else's email address")
+
 		//Checks to see if user entered valid email format and if the chat doesn't already exists, create a new one
-		if (EmailValidator.validate(input) && !chatAlreadyExists(input)) {
+		if (EmailValidator.validate(input) && input !== user.email && !chatAlreadyExists(input)) {
 			//Once validated, post the new chat into the DB "chats" collection
 			db.collection("chats").add({
 				users: [user.email, input],
@@ -45,7 +49,7 @@ const Sidebar = () => {
 	return (
 		<Container>
 			<Header>
-				<UserAvatar onClick={() => auth.signOut()} />
+				<UserAvatar src={user.photoURL} onClick={() => auth.signOut()} />
 				<IconsContainer>
 					<IconButton>
 						<ChatIcon />
@@ -62,13 +66,31 @@ const Sidebar = () => {
 			</Search>
 
 			<SidebarButton onClick={createChat}>Start a new chat</SidebarButton>
+
+			{chatsSnapshot?.docs.map(chat => (
+				<Chat key={chat.id} id={chat.id} users={chat.data().users} />
+			))}
 		</Container>
 	);
 };
 
 export default Sidebar;
 
-const Container = styled.div``;
+const Container = styled.div`
+	flex: 0.45;
+	border-right: 1px solid whitesmoke;
+	height: 100vh;
+	min-width: 300px;
+	max-width: 350px;
+	overflow-y: scroll;
+	
+	::-webkit-scrollbar {
+		display: none;
+	}
+
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+`;
 
 const Header = styled.div`
 	display: flex;
