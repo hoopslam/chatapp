@@ -1,8 +1,5 @@
-import { Avatar, IconButton, Button } from "@material-ui/core";
+import { Avatar, Button } from "@material-ui/core";
 import styled from "styled-components";
-import ChatIcon from "@material-ui/icons/Chat";
-import MoreVertIcon from "@material-ui/icons/MoreVert";
-import SearchIcon from "@material-ui/icons/Search";
 import * as EmailValidator from "email-validator";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useCollection } from "react-firebase-hooks/firestore";
@@ -50,22 +47,9 @@ const Sidebar = () => {
 		<Container>
 			<Header>
 				<UserAvatar src={user.photoURL} onClick={() => auth.signOut()} />
-				<IconsContainer>
-					<IconButton>
-						<ChatIcon />
-					</IconButton>
-					<IconButton>
-						<MoreVertIcon />
-					</IconButton>
-				</IconsContainer>
 			</Header>
 
-			<Search>
-				<SearchIcon />
-				<SearchInput placeholder='Search chats' />
-			</Search>
-
-			<SidebarButton onClick={createChat}>Start a new chat</SidebarButton>
+			<SidebarButton onClick={createChat}>Start A  Chat</SidebarButton>
 
 			{chatsSnapshot?.docs.map(chat => (
 				<Chat key={chat.id} id={chat.id} users={chat.data().users} />
@@ -113,26 +97,14 @@ const UserAvatar = styled(Avatar)`
 	}
 `;
 
-const IconsContainer = styled.div``;
-
-const Search = styled.div`
-	display: flex;
-	align-items: center;
-	padding: 20px;
-	border-radius: 2px;
-`;
-
-const SearchInput = styled.input`
-	outline-width: 0;
-	border: none;
-	flex: 1;
-`;
-
 const SidebarButton = styled(Button)`
 	width: 100%;
+	height: 80px;
 
 	&&& {
 		//increases specificity to override material-ui's
-		border: 1px solid whitesmoke;
+		border-top: 2px solid whitesmoke;
+		border-bottom: 2px solid whitesmoke;
+		font-size: 1.3rem;
 	}
 `;

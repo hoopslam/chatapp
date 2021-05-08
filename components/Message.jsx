@@ -37,11 +37,11 @@ const MessageElement = styled.p`
 
 const Sender = styled(MessageElement)`
 	margin-left: auto;
-	background-color: #b0bec5;
+	background-color: #B39DDB;
 `;
 
 const Reciever = styled(MessageElement)`
-	background-color: #5ddef4;
+	background-color: #80DEEA;
 	text-align: left;
 `;
 

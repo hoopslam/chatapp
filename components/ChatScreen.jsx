@@ -2,12 +2,8 @@ import styled from "styled-components";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, db } from "../firebase";
 import { useRouter } from "next/router";
-import { Avatar, IconButton } from "@material-ui/core";
-import MoreVertIcon from "@material-ui/icons/MoreVert";
-import AttachFileIcon from "@material-ui/icons/AttachFile";
-import InsertEmoticonIcon from "@material-ui/icons/InsertEmoticon";
+import { Avatar} from "@material-ui/core";
 import { useCollection } from "react-firebase-hooks/firestore";
-import MicIcon from "@material-ui/icons/Mic";
 import { useState, useRef } from "react";
 import Message from "./Message";
 import firebase from "firebase";
@@ -104,26 +100,16 @@ const ChatScreen = ({ chat, messages }) => {
                         <p>Loading Last Active...</p>
                     )}
 				</HeaderInformation>
-				<div>
-					<IconButton>
-						<AttachFileIcon />
-					</IconButton>
-					<IconButton>
-						<MoreVertIcon />
-					</IconButton>
-				</div>
 			</Header>
 			<MessageContainer>
 				{showMessages()}
 				<EndOfMessage ref={endOfMessagesRef}/>
 			</MessageContainer>
 			<InputContainer>
-				<InsertEmoticonIcon />
 				<Input value={input} onChange={(e) => setInput(e.target.value)} />
-				<button hidden disabled={!input} type='submit' onClick={sendMessage}>
+				<button disabled={!input} type='submit' onClick={sendMessage}>
 					Send Message
 				</button>
-				<MicIcon />
 			</InputContainer>
 		</Container>
 	);
@@ -139,10 +125,11 @@ const Input = styled.input`
 	border: none;
 	border-radius: 10px;
 	align-items: center;
-	padding: 20px;
+	padding: 15px;
 	margin-left: 15px;
 	margin-right: 15px;
 	background-color: whitesmoke;
+	font-size: 1.2rem;
 `;
 
 const InputContainer = styled.form`
@@ -153,6 +140,20 @@ const InputContainer = styled.form`
 	bottom: 0;
 	background-color: white;
 	z-index: 100;
+
+	button {
+		padding: 15px;
+		border: none;
+		border-radius: 10px;
+		background-color: #00ACC1;
+		font-size: 1.2rem;
+		color: whitesmoke;
+		cursor: pointer;
+
+		&:hover {
+			background-color: #00BCD4;
+		}
+	}
 `;
 
 const Header = styled.div`
