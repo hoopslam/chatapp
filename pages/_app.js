@@ -3,7 +3,7 @@ import {useEffect} from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, db } from "../firebase";
 import Login from "./login";
-import Loading from "../components/Loading";
+import Loader from "../components/Loader";
 import firebase from "firebase";
 
 function MyApp({ Component, pageProps }) {
@@ -23,7 +23,7 @@ function MyApp({ Component, pageProps }) {
 		}
 	}, [user]);
 
-	if (loading) return <Loading />;
+	if (loading) return <Loader />;
 
 	if (!user) return <Login />;
 

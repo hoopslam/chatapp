@@ -10,7 +10,7 @@ const styles = {
     }
 }
 
-const Loading = () => {
+const Loader = () => {
     return (
         <div style={styles.container}>
             <Circle color="#00acc1" size={100} />
@@ -18,4 +18,4 @@ const Loading = () => {
     )
 }
 
-export default Loading
+export default Loader

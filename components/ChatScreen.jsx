@@ -79,7 +79,7 @@ const ChatScreen = ({ chat, messages }) => {
     const recipient = recipientSnapshot?.docs?.[0]?.data();
 
 	return (
-		<Container>
+		<div>
 			<Header>
                 {recipient ? (
                     <Avatar src={recipient?.photoURL} />
@@ -111,13 +111,11 @@ const ChatScreen = ({ chat, messages }) => {
 					Send Message
 				</button>
 			</InputContainer>
-		</Container>
+		</div>
 	);
 };
 
 export default ChatScreen;
-
-const Container = styled.div``;
 
 const Input = styled.input`
 	flex: 1;
@@ -126,7 +124,6 @@ const Input = styled.input`
 	border-radius: 10px;
 	align-items: center;
 	padding: 15px;
-	margin-left: 15px;
 	margin-right: 15px;
 	background-color: whitesmoke;
 	font-size: 1.2rem;
@@ -134,9 +131,10 @@ const Input = styled.input`
 
 const InputContainer = styled.form`
 	display: flex;
-	align-items: center;
+	align-items: flex-start;
 	padding: 10px;
 	position: sticky;
+	min-height: 20vh;
 	bottom: 0;
 	background-color: white;
 	z-index: 100;
@@ -190,5 +188,5 @@ const EndOfMessage = styled.div`
 const MessageContainer = styled.div`
 	padding: 30px;
 	background-color: whitesmoke;
-	min-height: 90vh;
+	min-height: 80vh;
 `;

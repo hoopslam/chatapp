@@ -4,10 +4,18 @@ import * as EmailValidator from "email-validator";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useCollection } from "react-firebase-hooks/firestore";
 import { auth, db } from "../firebase";
-import Chat from "../components/Chat"
+import Chat from "../components/Chat";
+import { useState } from "react";
+import { useRouter } from "next/router";
 
 const Sidebar = () => {
+	const [avatarMenu, setAvatarMenu] = useState(false);
 	const [user] = useAuthState(auth);
+	const router = useRouter()
+
+	const handleSignOut = () => {
+		auth.signOut().then(() => router.push("/"))
+	}
 
 	//reference to the chats that contain the user's email
 	const userChatRef = db.collection("chats").where("users", "array-contains", user.email);
@@ -17,10 +25,11 @@ const Sidebar = () => {
 		const input = prompt("Please enter the email address of the user you wish to chat with");
 
 		//Checks to see if user inputed a valid email
-		if (!input || !EmailValidator.validate(input)) return alert("Please enter a valid email address");
+		if (!input || !EmailValidator.validate(input))
+			return alert("Please enter a valid email address");
 
 		//Checks to see if user didn't write own email
-		if(input === user.email) return alert("Please enter someone else's email address")
+		if (input === user.email) return alert("Please enter someone else's email address");
 
 		//Checks to see if user entered valid email format and if the chat doesn't already exists, create a new one
 		if (EmailValidator.validate(input) && input !== user.email && !chatAlreadyExists(input)) {
@@ -32,26 +41,30 @@ const Sidebar = () => {
 	};
 
 	//check in real time to see if that chat already exists on database
-	const chatAlreadyExists = (recipientEmail) =>
-		{
-			if (
-				chatsSnapshot?.docs.find(
-					(chat) => chat.data().users.find((user) => user === recipientEmail)?.length > 0
-				)
-			) {
-				return true;
-			} else return false;
-		};
+	const chatAlreadyExists = (recipientEmail) => {
+		if (
+			chatsSnapshot?.docs.find(
+				(chat) => chat.data().users.find((user) => user === recipientEmail)?.length > 0
+			)
+		) {
+			return true;
+		} else return false;
+	};
 
 	return (
 		<Container>
 			<Header>
-				<UserAvatar src={user.photoURL} onClick={() => auth.signOut()} />
+				<UserAvatar src={user.photoURL} onClick={()=> setAvatarMenu(!avatarMenu)} />
+				{avatarMenu ? (
+					<AvatarMenu>
+						<Button onClick={handleSignOut}>Sign Out</Button>
+					</AvatarMenu>
+				) : null}
 			</Header>
 
-			<SidebarButton onClick={createChat}>Start A  Chat</SidebarButton>
+			<SidebarButton onClick={createChat}>Start A Chat</SidebarButton>
 
-			{chatsSnapshot?.docs.map(chat => (
+			{chatsSnapshot?.docs.map((chat) => (
 				<Chat key={chat.id} id={chat.id} users={chat.data().users} />
 			))}
 		</Container>
@@ -67,7 +80,7 @@ const Container = styled.div`
 	min-width: 300px;
 	max-width: 350px;
 	overflow-y: scroll;
-	
+
 	::-webkit-scrollbar {
 		display: none;
 	}
@@ -97,12 +110,19 @@ const UserAvatar = styled(Avatar)`
 	}
 `;
 
+const AvatarMenu = styled.div`
+	position: absolute;
+	top: 70px;
+	left: 10px;
+	background-color: whitesmoke;
+`;
+
 const SidebarButton = styled(Button)`
 	width: 100%;
 	height: 80px;
 
 	&&& {
-		//increases specificity to override material-ui's
+		//increases specificity to override material-ui's default
 		border-top: 2px solid whitesmoke;
 		border-bottom: 2px solid whitesmoke;
 		font-size: 1.3rem;
